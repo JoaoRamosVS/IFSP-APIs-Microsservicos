@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
@@ -57,14 +58,16 @@ public class AcademiaDev {
                     if (users.containsKey(emailLogin)) {
                         usuarioLogado = users.get(emailLogin);
                         
+                        // MENU PARA ADMIN
                         if (usuarioLogado.getClass() == Admin.class) {
 
                         }
 
+                        // MENU PARA STUDENT
                         if (usuarioLogado.getClass() == Student.class) {
                             Student alunoLogado = (Student) usuarioLogado;
-                            System.out.println("\n\n===== MENU ALUNO - ACADEMIA DEV =====");
                             do {
+                                System.out.println("\n\n===== MENU ALUNO - ACADEMIA DEV =====");
                                 System.out.println("- 1. Matricular-se em curso");
                                 System.out.println("- 2. Consultar minhas matrículas");
                                 System.out.println("- 3. Atualizar progresso");
@@ -82,19 +85,82 @@ public class AcademiaDev {
                                                               .filter(e -> e.getStudent().getEmail().equals(alunoLogado.getEmail()))
                                                               .count() >= 3) {
                                                     throw new EnrollmentException("Matrícula proibida: aluno possui plano básico e já tem 3 matrículas.");
+                                                }
                                             }
-                                        }
+                                            System.out.print("\nDigite o nome do curso que você deseja se matricular: ");
+                                            String nomeCurso = sc.nextLine();
+                                            Course novoCurso = courses.get(nomeCurso);
+                                                
+                                            if (novoCurso == null) {
+                                                throw new EnrollmentException("Esse curso não existe no catálogo.");
+                                            }
+
+                                            if (novoCurso.getStatus().equals(Status.INACTIVE)) {
+                                               throw new EnrollmentException("Esse curso está inativo.");
+                                            }
+
+                                            if (!enrollments.stream()
+                                                            .filter(e -> e.getStudent().getEmail().equals(alunoLogado.getEmail()) 
+                                                                    && e.getCourse().getTitle().equals(novoCurso.getTitle()))
+                                                            .toList()
+                                                            .isEmpty()) {
+                                                throw new EnrollmentException("Aluno já possui matrícula neste curso.");
+                                            }
+
+                                            enrollments.add(new Enrollment(novoCurso, alunoLogado));
+                                            System.out.println("Nova matrícula registrada!");
+                                            System.out.println("Curso: " + novoCurso.getTitle());
+                                            System.out.println("Aluno: " + alunoLogado.getName());
                                         } catch (EnrollmentException e) {
                                             System.out.println(e.getMessage() + "\n");
                                         }
                                         break;
                                 
                                     case 2:
-                                        
+                                        System.out.print("\n----- SUAS MATRÍCULAS -----\n");
+                                        List<Enrollment> matriculasAlunoLogado = enrollments.stream()
+                                                                                            .filter(e -> e.getStudent().getEmail().equals(alunoLogado.getEmail()))
+                                                                                            .toList();
+                                        if (matriculasAlunoLogado.isEmpty()) {
+                                            System.out.println("O aluno ainda não possui matrículas.");
+                                        }
+                                        else {
+                                            for (Enrollment enrollment : matriculasAlunoLogado) {
+                                                System.out.println(enrollment.toString());
+                                            }
+                                        }
                                         break;
                                 
                                     case 3:
-                                        
+                                        System.out.print("\n----- ATUALIZAR PROGRESSO -----\n");                                        
+                                        try {
+                                            System.out.print("\nDigite o nome do curso que você deseja atualizar o progresso: ");
+                                            String cursoParaAtualizar = sc.nextLine();
+                                            Optional<Enrollment> matriculaAtualizada = enrollments.stream()
+                                                                                        .filter(e -> e.getStudent().getEmail().equals(alunoLogado.getEmail())
+                                                                                                && e.getCourse().getTitle().equals(cursoParaAtualizar))
+                                                                                        .findFirst();
+                                            if (matriculaAtualizada.isEmpty()) {
+                                                throw new EnrollmentException("Não foi encontrada nenhuma matrícula para este curso e este aluno.");
+                                            }
+
+                                            System.out.print("\nDigite o progresso atual (de 0.0 a 100.0): ");
+                                            Double novoProgresso = sc.nextDouble();
+
+                                            if (novoProgresso < 0 || novoProgresso > 100) {
+                                                throw new EnrollmentException("O novo progresso deve ser de 0 a 100.");
+                                            }
+
+                                            enrollments.stream()
+                                                       .filter(e -> e.getStudent().getEmail().equals(alunoLogado.getEmail())
+                                                               && e.getCourse().getTitle().equals(cursoParaAtualizar))
+                                                       .findFirst()
+                                                       .get()
+                                                       .updateProgress(novoProgresso);                                            
+                                            System.out.println("Progresso atualizado!");
+                                        } catch (EnrollmentException e) {
+                                            System.out.println(e.getMessage() + "\n");
+                                        }
                                         break;
                                 
                                     case 4:

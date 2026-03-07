@@ -36,10 +36,11 @@ public class InitialData {
         HashMap<String, Course> courses = new HashMap<String, Course>();
         courses.put("Java Basics", new Course("Java Basics", "Introduction to Java programming", "Matthew", 40, DifficultyLevel.BEGINNER, Status.ACTIVE));
         courses.put("Advanced Java", new Course("Advanced Java", "Deep dive into Java features", "Matthew", 60, DifficultyLevel.ADVANCED, Status.ACTIVE));
+        courses.put("Database Design", new Course("Database Design", "Fundamentals of relational databases", "Carlos", 45, DifficultyLevel.INTERMEDIATE, Status.ACTIVE));
+        courses.put("Web Development", new Course("Web Development", "Building websites with HTML, CSS and JS", "Ana", 55, DifficultyLevel.BEGINNER, Status.ACTIVE));
         courses.put("Python for Beginners", new Course("Python for Beginners", "Learn Python from scratch", "Maria Alice", 50, DifficultyLevel.BEGINNER, Status.INACTIVE));
         return courses;
     }
-    // Adicionar mais cursos e matriculas para testar a exception
     
     public static List<Enrollment> getEnrollments() {
         HashMap<String, Student> students = getStudents();
@@ -49,7 +50,8 @@ public class InitialData {
         if (!students.isEmpty() && !courses.isEmpty()) {
             enrollments.add(new Enrollment(courses.get("Java Basics"), students.get("charlie@student.com")));
             enrollments.add(new Enrollment(courses.get("Advanced Java"), students.get("diana@student.com")));
-            enrollments.add(new Enrollment(courses.get("Java Basics"), students.get("charlie@student.com")));
+            enrollments.add(new Enrollment(courses.get("Web Development"), students.get("charlie@student.com")));
+            enrollments.add(new Enrollment(courses.get("Advanced Java"), students.get("charlie@student.com")));
         }
         return enrollments;
     }

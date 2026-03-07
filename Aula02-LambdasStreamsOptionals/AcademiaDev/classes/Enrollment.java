@@ -34,4 +34,12 @@ public class Enrollment {
     public void updateProgress(Double progress) {
         this.progress = progress;
     }
+
+    @Override
+    public String toString() {
+        return "CURSO: " 
+               + this.getCourse().getTitle()
+               + "\nPROGRESSO: " + this.getProgress() + "%"
+               + "\n";
+    }
 }
