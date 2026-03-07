@@ -185,7 +185,9 @@ public class AcademiaDev {
             
                 case 2:
                     System.out.println("\n===== CURSOS DISPONÍVEIS =====");
-                    for (Course course : courses.values()) {
+                    for (Course course : courses.values().stream()
+                                                         .filter(c -> c.getStatus().equals(Status.ACTIVE))
+                                                         .toList()) {
                         System.out.println("NOME: " + course.getTitle() + " | CARGA HORÁRIA: " + course.getDurationInHours());
                         System.out.println("DESCRIÇÃO: " + course.getDescription());
                         System.out.println("PROFESSOR: " + course.getInstructor());
