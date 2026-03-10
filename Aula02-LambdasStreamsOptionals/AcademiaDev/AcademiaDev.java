@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Scanner;
@@ -14,6 +15,7 @@ import java.util.Set;
 import AcademiaDev.classes.*;
 import AcademiaDev.classes.enums.Status;
 import AcademiaDev.classes.enums.SubscriptionPlan;
+import AcademiaDev.exceptions.CourseException;
 import AcademiaDev.exceptions.EnrollmentException;
 import AcademiaDev.utils.*;
 
@@ -21,11 +23,12 @@ public class AcademiaDev {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String emailLogin = "";
-        Integer opcaoMenu = 0, opcaoMenuLogado = 0;
+        Integer opcaoMenu = 0, opcaoMenuLogado = 0, opcaoRelatorio = 0;
         User usuarioLogado = null;
 
         // Inicialização dos dados
         HashMap<String, User> users = InitialData.getUsers();
+        HashMap<String, Student> students = InitialData.getStudents();
         HashMap<String, Course> courses = InitialData.getCourses();
         List<Enrollment> enrollments = new ArrayList<>();
         enrollments = InitialData.getEnrollments();
@@ -60,7 +63,155 @@ public class AcademiaDev {
                         
                         // MENU PARA ADMIN
                         if (usuarioLogado.getClass() == Admin.class) {
+                            do{
+                                System.out.println("\n\n===== MENU ADMIN - ACADEMIA DEV =====");
+                                System.out.println("- 1. Gerenciar Status de Cursos");
+                                System.out.println("- 2. Gerenciar Planos de Alunos");
+                                System.out.println("- 3. Atender Tickets de Suporte");
+                                System.out.println("- 4. Gerar Relatórios e Análises");
+                                System.out.println("- 5. Exportar Dados em CSV");
+                                System.out.println("- 0. Deslogar");
+                                System.out.print("->: ");
+                                opcaoMenuLogado = sc.nextInt();
+                                sc.nextLine();      
 
+                                switch (opcaoMenuLogado){
+                                    case 1:
+                                        for (Entry<String, Course> course : courses.entrySet()) {
+                                            System.out.println("CURSO: " + course.getKey() + " | STATUS: " + course.getValue().getStatus());
+                                        }
+                                        System.out.print("\nDigite o nome do Curso que deseja alterar o status: ");
+                                        String courseInput = sc.nextLine();
+                                        try{
+                                            Course course = courses.get(courseInput);
+
+                                            if(course == null){
+                                                throw new CourseException("\nO curso pesquisado não existe na base de dados.");
+                                            }
+                                            
+                                            System.out.println("CURSO: " + course.getTitle() + " | INSTRUTOR: " + course.getInstructor() + " | STATUS: " + course.getStatus());
+
+                                            if(course.getStatus() == Status.ACTIVE){
+                                                System.out.print("\nDeseja inativar este curso? Digite 'SIM' para executar: ");
+                                                String inactivationOption = sc.nextLine();
+                                                if(inactivationOption.equals("SIM")){
+                                                    course.setStatus(Status.INACTIVE);
+                                                    System.out.println("CURSO: " + course.getTitle() + " FOI ALTERADO PARA " + course.getStatus());
+                                                } else{
+                                                    return;
+                                                }
+                                            }
+
+                                            else if(course.getStatus() == Status.INACTIVE){
+                                                System.out.print("\nDeseja ativar este curso? Digite 'SIM' para executar: ");
+                                                String inactivationOption = sc.nextLine();
+                                                if(inactivationOption.equals("SIM")){
+                                                    course.setStatus(Status.ACTIVE);
+                                                } else{
+                                                    return;
+                                                }
+                                            }
+                                        } catch(CourseException c){
+                                            System.out.println(c.getMessage() + "\n");
+                                        }
+
+                                        break;
+
+                                    case 2:
+                                        for (Entry<String, User> user : users.entrySet()) {
+                                            if(user.getValue() instanceof Student){
+                                                Student student = (Student) user.getValue();
+                                                System.out.println("NOME:" + student.getName() + " | EMAIL: " + student.getEmail() + " | PLANO DE ESTUDO: " + student.getSubscriptionPlan());
+                                            }
+                                        }    
+                                        System.out.print("\nDigite o email do aluno que deseja editar o plano: ");
+                                        String studentEmail = sc.nextLine();
+
+                                        if(users.containsKey(studentEmail)){
+                                            Student student = (Student) users.get(studentEmail);
+
+                                            System.out.println("\nPLANO DE ESTUDO DO(A) ALUNO(A): " + student.getName() + " | PLANO DE ASSINATURA: " + student.getSubscriptionPlan());
+
+                                            if(student.getSubscriptionPlan().equals(SubscriptionPlan.BASIC_PLAN)){
+                                                System.out.print("\nDeseja mudar este plano para o PREMIUM? Digite SIM para executar: ");
+                                                String subscriptionOption = sc.nextLine();
+                                                if(subscriptionOption.equals("SIM")){
+                                                    student.setSubscriptionPlan(SubscriptionPlan.PREMIUM_PLAN);
+                                                    System.out.println("\nALUNO: " + student.getName() + " TEVE O PLANO ALTERADO PARA " + student.getSubscriptionPlan());
+                                                } else{
+                                                    return;
+                                                }
+                                            }
+                                            else if(student.getSubscriptionPlan().equals(SubscriptionPlan.PREMIUM_PLAN)){
+                                                System.out.print("\nDeseja mudar este plano para o BASIC? Digite SIM para executar: ");
+                                                String subscriptionOption = sc.nextLine();
+                                                if(subscriptionOption.equals("SIM")){
+                                                    student.setSubscriptionPlan(SubscriptionPlan.BASIC_PLAN);
+                                                    System.out.println("\nALUNO: " + student.getName() + " TEVE O PLANO ALTERADO PARA " + student.getSubscriptionPlan());
+                                                } else{
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            System.out.println("\nO e-mail digitado não está presente entre os alunos cadastrados.\n");
+                                        }
+                                        break;
+                                    
+                                    case 3:
+                                        break;
+                                    
+                                    case 4:
+                                        do {
+                                            System.out.print("\n----- RELATÓRIOS E ANÁLISES -----\n");
+                                            System.out.println("- 1. Relação de cursos ordenados por dificuldade");
+                                            System.out.println("- 2. Relação de instrutores de cursos ativos");
+                                            System.out.println("- 3. Relação de alunos por plano de assinatura");
+                                            System.out.println("- 4. Média geral de progresso de todas as matrículas");
+                                            System.out.println("- 5. Aluno com maior número de matrículas ativas");
+                                            System.out.println("- Selecione um dos relatórios.");
+                                            System.out.print("\n->: ");
+                                            opcaoRelatorio = sc.nextInt();
+                                            sc.nextLine();
+                                            
+                                            switch (opcaoRelatorio) {
+                                                case 1:
+                                                    System.out.println("");
+                                                    Course.ListCoursesOrderByDifficultyLevel(courses);
+                                                    opcaoRelatorio = 0;
+                                                    break;
+                                                case 2:
+                                                    System.out.println("");
+                                                    Course.listActiveCoursesInstructors(courses);
+                                                    opcaoRelatorio = 0;
+                                                    break;
+                                                case 3:
+                                                    System.out.println("");
+                                                    Student.listStudentsBySubscriptionPlan(students);
+                                                    opcaoRelatorio = 0;
+                                                    break;
+                                                case 4:
+                                                    try {
+                                                        Double progressAverage = Enrollment.getStudentsProgressAverage(enrollments);
+                                                        System.out.printf("\n- MÉDIA GERAL DE PROGRESSO DE TODAS AS MATRÍCULAS: %.2f\n", progressAverage);
+                                                    } catch (EnrollmentException e) {
+                                                        System.out.println(e.getMessage() + "\n");
+                                                    }   
+                                                    opcaoRelatorio = 0;
+                                                    break;
+                                                case 5:
+                                                    
+                                                    opcaoRelatorio = 0;
+                                                    break;
+                                            
+                                                default:
+                                                    break;
+                                            }
+                                        } while (opcaoRelatorio != 0);
+                                        break;
+
+                                }
+                            }while (opcaoMenuLogado != 0);
                         }
 
                         // MENU PARA STUDENT
@@ -164,7 +315,24 @@ public class AcademiaDev {
                                         break;
                                 
                                     case 4:
+                                        System.out.print("\n----- CANCELAR MATRÍCULA -----\n");    
+                                        try{
+                                            Enrollment.listStudentsEnrollments(enrollments, emailLogin);
+                                            System.out.print("\nDigite o nome do curso que deseja cancelar a matrícula: ");
+                                            String removedEnrollmentCourse = sc.nextLine();
+                                            Enrollment enrollment = enrollments.stream()
+                                                                            .filter(e -> e.getStudent().getEmail().equals(alunoLogado.getEmail())
+                                                                                    && e.getCourse().getTitle().equals(removedEnrollmentCourse))
+                                                                            .findFirst()
+                                                                            .orElseThrow(() -> new EnrollmentException("\nO aluno não está cadastrado no curso digitado\n"));
                                         
+                                            enrollments.remove(enrollment);
+                                            System.out.println("\nMatrícula removida com sucesso!\n");
+                                        }catch(EnrollmentException e){
+                                            System.out.println(e.getMessage() + "\n");
+                                        }
+
+
                                         break;
                                 
                                     case 0:
