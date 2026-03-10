@@ -69,6 +69,20 @@ public class Enrollment {
                                                                       .max(Comparator.comparingLong(Map.Entry::getValue))
                                                                       .map(Map.Entry::getKey);
         
+        studentWithMostEnrollments.ifPresentOrElse((s) -> 
+        {
+            System.out.println("\nAluno com mais matrículas: " 
+                                + s.getName() 
+                                + "\nMatrículas do aluno:");
+            List<Enrollment> studentEnrollments = enrollmentsList.stream()
+                                                                 .filter(e -> e.getStudent().getEmail().equals(s.getEmail()))
+                                                                 .toList();
+            for (Enrollment enrollment : studentEnrollments) {
+                System.out.println(enrollment.toString());
+            }
+            System.out.println("\n");
+        },
+        () -> new EnrollmentException("\nNão foi possível localizar o aluno com mais matrículas."));
     }
 
     @Override

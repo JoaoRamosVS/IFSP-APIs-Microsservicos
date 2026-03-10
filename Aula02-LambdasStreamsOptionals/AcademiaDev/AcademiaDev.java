@@ -200,7 +200,11 @@ public class AcademiaDev {
                                                     opcaoRelatorio = 0;
                                                     break;
                                                 case 5:
-                                                    
+                                                    try {
+                                                        Enrollment.showStudentWithMostEnrollments(enrollments);
+                                                    } catch (EnrollmentException e) {
+                                                        System.out.println(e.getMessage() + "\n");
+                                                    }
                                                     opcaoRelatorio = 0;
                                                     break;
                                             
