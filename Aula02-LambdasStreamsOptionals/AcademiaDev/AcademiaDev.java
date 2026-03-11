@@ -15,6 +15,7 @@ import java.util.Set;
 import AcademiaDev.classes.*;
 import AcademiaDev.classes.enums.Status;
 import AcademiaDev.classes.enums.SubscriptionPlan;
+import AcademiaDev.classes.enums.TicketStatus;
 import AcademiaDev.exceptions.CourseException;
 import AcademiaDev.exceptions.EnrollmentException;
 import AcademiaDev.utils.*;
@@ -159,6 +160,19 @@ public class AcademiaDev {
                                         break;
                                     
                                     case 3:
+                                        System.out.println("\n----- ATENDER TICKETS DE SUPORTE -----\n");
+                                        if (supportTickets.isEmpty()) {
+                                            System.out.println("Nenhum ticket na fila de suporte.\n");
+                                        } else {
+                                            SupportTicket ticket = supportTickets.poll();
+                                            System.out.println("TICKET: " + ticket.getTitle());
+                                            System.out.println("DESCRIÇÃO: " + ticket.getMessage());
+                                            System.out.print("\nDigite a resposta para o ticket: ");
+                                            String respostaTicket = sc.nextLine();
+                                            ticket.setResponse(respostaTicket);
+                                            ticket.setStatus(TicketStatus.RESOLVIDO);
+                                            System.out.println("\nTicket resolvido e removido da fila!\n");
+                                        }
                                         break;
                                     
                                     case 4:
@@ -209,10 +223,86 @@ public class AcademiaDev {
                                                     break;
                                             
                                                 default:
+                                                    System.out.println("\nOpção inválida. Digite uma das opções do menu.\n");
                                                     break;
                                             }
                                         } while (opcaoRelatorio != 0);
                                         break;
+                                        
+                                        case 5:
+                                            System.out.println("\n----- EXPORTAR DADOS EM CSV -----");
+                                        System.out.println("- 1. Alunos");
+                                        System.out.println("- 2. Cursos");
+                                        System.out.println("- 3. Matrículas");
+                                        System.out.println("- 4. Tickets de suporte");
+                                        System.out.print("Selecione o conjunto de dados (1-4): ");
+                                        int opcaoExport = sc.nextInt();
+                                        sc.nextLine();
+
+                                        List<String> colunasSelecionadas = new ArrayList<>();
+                                        List<String> colunasDisponiveis = List.of();
+
+                                        switch (opcaoExport) {
+                                            case 1:
+                                                colunasDisponiveis = new ArrayList<>(CsvExporter.STUDENT_COLUMNS);
+                                                System.out.println("Colunas disponíveis: " + String.join(", ", colunasDisponiveis));
+                                                System.out.print("Digite as colunas separadas por vírgula (ou 'todas'): ");
+                                                String inputAlunos = sc.nextLine().trim().toLowerCase();
+                                                if (inputAlunos.equals("todas")) {
+                                                    colunasSelecionadas = new ArrayList<>(colunasDisponiveis);
+                                                } else {
+                                                    colunasSelecionadas = java.util.Arrays.stream(inputAlunos.split(","))
+                                                            .map(String::trim).filter(s -> !s.isEmpty()).toList();
+                                                }
+                                                System.out.println("\n--- CSV Gerado ---\n");
+                                                System.out.println(CsvExporter.exportStudentsToCsv(students.values(), colunasSelecionadas));
+                                                break;
+                                            case 2:
+                                                colunasDisponiveis = new ArrayList<>(CsvExporter.COURSE_COLUMNS);
+                                                System.out.println("Colunas disponíveis: " + String.join(", ", colunasDisponiveis));
+                                                System.out.print("Digite as colunas separadas por vírgula (ou 'todas'): ");
+                                                String inputCursos = sc.nextLine().trim().toLowerCase();
+                                                if (inputCursos.equals("todas")) {
+                                                    colunasSelecionadas = new ArrayList<>(colunasDisponiveis);
+                                                } else {
+                                                    colunasSelecionadas = java.util.Arrays.stream(inputCursos.split(","))
+                                                            .map(String::trim).filter(s -> !s.isEmpty()).toList();
+                                                }
+                                                System.out.println("\n--- CSV Gerado ---\n");
+                                                System.out.println(CsvExporter.exportCoursesToCsv(courses.values(), colunasSelecionadas));
+                                                break;
+                                            case 3:
+                                                colunasDisponiveis = new ArrayList<>(CsvExporter.ENROLLMENT_COLUMNS);
+                                                System.out.println("Colunas disponíveis: " + String.join(", ", colunasDisponiveis));
+                                                System.out.print("Digite as colunas separadas por vírgula (ou 'todas'): ");
+                                                String inputMatriculas = sc.nextLine().trim().toLowerCase();
+                                                if (inputMatriculas.equals("todas")) {
+                                                    colunasSelecionadas = new ArrayList<>(colunasDisponiveis);
+                                                } else {
+                                                    colunasSelecionadas = java.util.Arrays.stream(inputMatriculas.split(","))
+                                                            .map(String::trim).filter(s -> !s.isEmpty()).toList();
+                                                }
+                                                System.out.println("\n--- CSV Gerado ---\n");
+                                                System.out.println(CsvExporter.exportEnrollmentsToCsv(enrollments, colunasSelecionadas));
+                                                break;
+                                            case 4:
+                                                colunasDisponiveis = new ArrayList<>(CsvExporter.TICKET_COLUMNS);
+                                                System.out.println("Colunas disponíveis: " + String.join(", ", colunasDisponiveis));
+                                                System.out.print("Digite as colunas separadas por vírgula (ou 'todas'): ");
+                                                String inputTickets = sc.nextLine().trim().toLowerCase();
+                                                if (inputTickets.equals("todas")) {
+                                                    colunasSelecionadas = new ArrayList<>(colunasDisponiveis);
+                                                } else {
+                                                    colunasSelecionadas = java.util.Arrays.stream(inputTickets.split(","))
+                                                            .map(String::trim).filter(s -> !s.isEmpty()).toList();
+                                                }
+                                                System.out.println("\n--- CSV Gerado ---\n");
+                                                System.out.println(CsvExporter.exportTicketsToCsv(supportTickets, colunasSelecionadas));
+                                                break;
+                                            default:
+                                                System.out.println("Opção inválida.");
+                                        }
+                                            break;
 
                                 }
                             }while (opcaoMenuLogado != 0);
